@@ -17,12 +17,12 @@ namespaces = true
 # ----------------------------------------- Project Metadata -------------------------------------
 #
 [project]
-version = "0.0.0.dev1"
+version = "0.0.0.dev2"
 name = "ActionMan"
 dependencies = [
     "markitup",
 ]
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 
 [project.scripts]
 am-print-file = "actionman._cli.pprint:file"
