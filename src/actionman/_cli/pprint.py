@@ -52,7 +52,7 @@ def file():
         content = content.strip()
     margin_top = "\n" * args.margin
     margin_bottom = margin_top if content.endswith("\n") else f"{margin_top}\n"
-    print(f"{margin_top}{content}{margin_bottom}")
+    print(f"{margin_top}{content}{margin_bottom}", flush=True)
     return
 
 
