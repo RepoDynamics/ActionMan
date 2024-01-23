@@ -24,6 +24,10 @@ class Logger:
         symbol_error: str = "⛔",
         symbol_warning: str = "🚨",
         symbol_attention: str = "❗",
+        symbol_info: str = "ℹ️",
+        symbol_input: str = "📥",
+        symbol_output: str = "📤",
+        symbol_debug: str = "🐞",
         entry_seperator_top: str = "="*35,
         entry_seperator_bottom: str = "="*35,
         entry_seperator_title: str = "-"*30,
@@ -56,6 +60,10 @@ class Logger:
             "error": symbol_error,
             "warning": symbol_warning,
             "attention": symbol_attention,
+            "info": symbol_info,
+            "input": symbol_input,
+            "output": symbol_output,
+            "debug": symbol_debug,
         }
         self._entry_seperator_top = entry_seperator_top
         self._entry_seperator_bottom = entry_seperator_bottom
