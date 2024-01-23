@@ -31,15 +31,14 @@ def entry_console(
     return output
 
 
-
 def h1(
     title: str,
     width: int = 110,
-    margin_top: int = 3,
+    margin_top: int = 2,
     margin_bottom: int = 1,
     text_styles: str | int | list[str | int] | None = "bold",
-    text_color: str | int | tuple[int, int, int] | None = "black",
-    background_color: str | int | tuple[int, int, int] | None = (0, 162, 255),
+    text_color: str | int | tuple[int, int, int] | None = (255, 255, 255),
+    background_color: str | int | tuple[int, int, int] | None = (150, 0, 170),
     pprint: bool = True,
 ) -> str:
     return h(**locals())
@@ -48,11 +47,11 @@ def h1(
 def h2(
     title: str,
     width: int = 95,
-    margin_top: int = 2,
+    margin_top: int = 1,
     margin_bottom: int = 1,
     text_styles: str | int | list[str | int] | None = "bold",
-    text_color: str | int | tuple[int, int, int] | None = "black",
-    background_color: str | int | tuple[int, int, int] | None = (200, 120, 255),
+    text_color: str | int | tuple[int, int, int] | None = (255, 255, 255),
+    background_color: str | int | tuple[int, int, int] | None = (25, 100, 175),
     pprint: bool = True,
 ) -> str:
     return h(**locals())
@@ -64,8 +63,8 @@ def h3(
     margin_top: int = 1,
     margin_bottom: int = 1,
     text_styles: str | int | list[str | int] | None = "bold",
-    text_color: str | int | tuple[int, int, int] | None = "black",
-    background_color: str | int | tuple[int, int, int] | None = (252, 189, 0),
+    text_color: str | int | tuple[int, int, int] | None = (255, 255, 255),
+    background_color: str | int | tuple[int, int, int] | None = (100, 160, 0),
     pprint: bool = True,
 ) -> str:
     return h(**locals())
@@ -77,8 +76,8 @@ def h4(
     margin_top: int = 1,
     margin_bottom: int = 0,
     text_styles: str | int | list[str | int] | None = "bold",
-    text_color: str | int | tuple[int, int, int] | None = "black",
-    background_color: str | int | tuple[int, int, int] | None = (79, 255, 15),
+    text_color: str | int | tuple[int, int, int] | None = (255, 255, 255),
+    background_color: str | int | tuple[int, int, int] | None = (200, 150, 0),
     pprint: bool = True,
 ) -> str:
     return h(**locals())
@@ -89,9 +88,9 @@ def h5(
     width: int = 50,
     margin_top: int = 1,
     margin_bottom: int = 0,
-    text_styles: str | int | list[str | int] | None = None,
-    text_color: str | int | tuple[int, int, int] | None = "black",
-    background_color: str | int | tuple[int, int, int] | None = (0, 200, 255),
+    text_styles: str | int | list[str | int] | None = "bold",
+    text_color: str | int | tuple[int, int, int] | None = (255, 255, 255),
+    background_color: str | int | tuple[int, int, int] | None = (240, 100, 0),
     pprint: bool = True,
 ) -> str:
     return h(**locals())
@@ -100,11 +99,11 @@ def h5(
 def h6(
     title: str,
     width: int = 35,
-    margin_top: int = 0,
+    margin_top: int = 1,
     margin_bottom: int = 0,
-    text_styles: str | int | list[str | int] | None = None,
-    text_color: str | int | tuple[int, int, int] | None = "black",
-    background_color: str | int | tuple[int, int, int] | None = (0, 200, 255),
+    text_styles: str | int | list[str | int] | None = "bold",
+    text_color: str | int | tuple[int, int, int] | None = (255, 255, 255),
+    background_color: str | int | tuple[int, int, int] | None = (220, 0, 35),
     pprint: bool = True,
 ) -> str:
     return h(**locals())
