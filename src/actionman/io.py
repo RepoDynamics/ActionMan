@@ -139,12 +139,13 @@ def read_function_args_from_environment_variables(
     hide_args: tuple[str, ...] | list[str] = tuple(),
     ignore_params: tuple[str, ...] | list[str] = tuple(),
     logger: _Logger | None = None,
+    log_section_name: str = "Inputs",
 ) -> dict[str, str | bool | int | float | list | dict | None]:
     """
     Parse inputs from environment variables.
     """
     if logger:
-        logger.section("Read Input Arguments")
+        logger.section(log_section_name.format(function=function.__qualname__))
     default_args = {
         k: v.default for k, v in _inspect.signature(function).parameters.items()
         if v.default is not _inspect.Parameter.empty
