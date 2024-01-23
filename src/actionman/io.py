@@ -154,13 +154,14 @@ def read_function_args_from_environment_variables(
     args = {}
     for name, typ in params.items():
         if name not in ignore_params:
-            args[name] = read_environment_variable(
+            arg = read_environment_variable(
                 name=f"{name_prefix}{name}".upper(),
                 typ=typ,
                 missing_ok=name in default_args,
                 logger=logger,
                 log_value=name not in hide_args,
-            ) or default_args[name]
+            )
+            args[name] = arg if arg is not None else default_args[name]
     if logger:
         logger.section_end()
     return args
