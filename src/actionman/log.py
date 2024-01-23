@@ -123,7 +123,7 @@ class Logger:
         self._log_console += console_entry
         self._log_html += file_entry
         if self.realtime_output:
-            print(console)
+            print(console, flush=True)
             if self.output_html_filepath:
                 with open(self.output_html_filepath, "a") as f:
                     f.write(file_entry)
