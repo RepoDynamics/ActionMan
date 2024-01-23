@@ -4,7 +4,7 @@ from markitup import sgr as _sgr
 def entry_github(title: str, details: str, pprint: bool = True) -> str:
     output = f"::group::{title}\n{details}\n::endgroup::"
     if pprint:
-        print(output)
+        print(output, flush=True)
     return output
 
 
@@ -27,7 +27,7 @@ def entry_console(
     if seperator_bottom:
         output += f"\n{seperator_bottom}"
     if pprint:
-        print(output)
+        print(output, flush=True)
     return output
 
 
@@ -128,5 +128,5 @@ def h(
     margin_bottom = "\n" * margin_bottom
     output = f"{margin_top}{heading_box}{margin_bottom}"
     if pprint:
-        print(output)
+        print(output, flush=True)
     return output
