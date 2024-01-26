@@ -4,7 +4,7 @@ import json as _json
 import inspect as _inspect
 import base64 as _base64
 
-from actionman.log import Logger as _Logger
+from actionman.log import Logger as _Logger, LogStatus as _LogStatus
 
 
 def read_environment_variable(
@@ -17,7 +17,7 @@ def read_environment_variable(
     """
     Parse inputs from environment variables.
     """
-    def log(status, summary):
+    def log(status: _LogStatus, summary: str):
         if logger:
             logger.entry(
                 status=status,
@@ -32,21 +32,27 @@ def read_environment_variable(
             )
         return
 
-    def cast_error(expected_typ: str, exception: Exception | None = None):
-        log(status="error", summary=f"Value could not be casted to {expected_typ}.")
-        to_raise = TypeError(f"Environment variable {name} could not be casted to {expected_typ}.")
+    def raise_casting_error(expected_typ: str, exception: Exception | None = None):
+        log(status=_LogStatus.FAIL, summary=f"Value could not be casted to {expected_typ}.")
+        error_summary = f"Environment variable {name} could not be casted to {expected_typ}."
+        if logger:
+            logger.error(summary=error_summary)
+        final_exception = TypeError(error_summary)
         if exception:
-            raise to_raise from exception
+            raise final_exception from exception
         else:
-            raise to_raise
+            raise final_exception
 
     value = _os.environ.get(name)
     if value is None:
         if missing_ok:
-            log(status="skip", summary=f"Environment variable '{name}' is not set, but it is not required.")
+            log(
+                status=_LogStatus.SKIP,
+                summary=f"Environment variable '{name}' is not set, but it is not required."
+            )
             return
         else:
-            log(status="error", summary=f"Environment variable '{name}' is not set.")
+            log(status=_LogStatus.FAIL, summary=f"Environment variable '{name}' is not set.")
             raise ValueError(f"Environment variable '{name}' is not set.")
     if typ is str:
         if isinstance(value, str):
@@ -55,14 +61,14 @@ def read_environment_variable(
             try:
                 value_casted = str(value)
             except Exception as e:
-                cast_error(expected_typ="string", exception=e)
+                raise_casting_error(expected_typ="string", exception=e)
     elif typ is bool:
         if isinstance(value, bool):
             value_casted = value
         elif isinstance(value, str) and value.lower() in ("true", "false", ""):
             value_casted = value.lower() == "true"
         else:
-            cast_error(expected_typ="boolean")
+            raise_casting_error(expected_typ="boolean")
     elif typ is int:
         if isinstance(value, int):
             value_casted = value
@@ -70,9 +76,9 @@ def read_environment_variable(
             try:
                 value_casted = int(value)
             except Exception as e:
-                cast_error(expected_typ="integer", exception=e)
+                raise_casting_error(expected_typ="integer", exception=e)
         else:
-            cast_error(expected_typ="integer")
+            raise_casting_error(expected_typ="integer")
     elif typ is float:
         if isinstance(value, float):
             value_casted = value
@@ -80,9 +86,9 @@ def read_environment_variable(
             try:
                 value_casted = float(value)
             except Exception as e:
-                cast_error(expected_typ="float", exception=e)
+                raise_casting_error(expected_typ="float", exception=e)
         else:
-            cast_error(expected_typ="float")
+            raise_casting_error(expected_typ="float")
     elif typ is list:
         if isinstance(value, list):
             value_casted = value
@@ -90,9 +96,9 @@ def read_environment_variable(
             try:
                 value_casted = _json.loads(value, strict=False)
             except Exception as e:
-                cast_error(expected_typ="list", exception=e)
+                raise_casting_error(expected_typ="list", exception=e)
         else:
-            cast_error(expected_typ="list")
+            raise_casting_error(expected_typ="list")
     elif typ is dict:
         if isinstance(value, dict):
             value_casted = value
@@ -100,12 +106,12 @@ def read_environment_variable(
             try:
                 value_casted = _json.loads(value, strict=False)
             except Exception as e:
-                cast_error(expected_typ="dict", exception=e)
+                raise_casting_error(expected_typ="dict", exception=e)
         else:
-            cast_error(expected_typ="dict")
+            raise_casting_error(expected_typ="dict")
     else:
         raise TypeError(f"The specified type '{typ}' for environment variable '{name}' is not supported.")
-    log(status="success", summary=f"Environment variable '{name}' was read successfully.")
+    log(status=_LogStatus.PASS, summary=f"Environment variable '{name}' was read successfully.")
     return value_casted
 
 
@@ -113,12 +119,13 @@ def read_environment_variables(
     *variables_data: tuple[str, _Type[str | bool | int | float | list | dict], bool, bool],
     name_prefix: str = "",
     logger: _Logger | None = None,
+    log_section_name: str = "Inputs",
 ) -> dict[str, str | bool | int | float | list | dict | None]:
     """
     Parse inputs from environment variables.
     """
     if logger:
-        logger.section("Read Environment Variables")
+        logger.section(log_section_name)
     variables = {}
     for name, typ, missing_ok, log_value in variables_data:
         variables[name] = read_environment_variable(
@@ -168,7 +175,14 @@ def read_function_args_from_environment_variables(
     return args
 
 
-def write_github_outputs(kwargs: dict, env: bool = False, logger: _Logger | None = None) -> None:
+def write_github_outputs(
+    kwargs: dict,
+    to_env: bool = False,
+    hide_args: tuple[str, ...] | list[str] = tuple(),
+    logger: _Logger | None = None,
+    log_title: str = "Write Step Outputs",
+    log_title_env: str = "Write Environment Variables",
+) -> None:
 
     def format_output(var_name, var_value) -> str | None:
         if isinstance(var_value, str):
@@ -183,43 +197,50 @@ def write_github_outputs(kwargs: dict, env: bool = False, logger: _Logger | None
             return
         return f"{var_name}={var_value}"
     if logger:
-        logger.section(f"Write {'Environment Variables' if env else 'Step Outputs'}")
-    with open(_os.environ["GITHUB_ENV" if env else "GITHUB_OUTPUT"], "a") as fh:
+        logger.section(log_title_env if to_env else log_title)
+    with open(_os.environ["GITHUB_ENV" if to_env else "GITHUB_OUTPUT"], "a") as fh:
         for idx, (name, value) in enumerate(kwargs.items()):
-            name_formatted = name.replace("_", "-") if not env else name.upper()
+            name_formatted = name.replace("_", "-") if not to_env else name.upper()
             title = f"Write '{name_formatted}' ({type(value).__name__})"
             value_formatted = format_output(name_formatted, value)
             if not value_formatted:
                 summary = f"Invalid type {type(value)} for variable '{name_formatted}': {value}."
+                error_summary = f"Failed to write output variable '{name}'."
                 if logger:
                     logger.entry(
-                        status="error",
+                        status=_LogStatus.FAIL,
                         title=title,
                         summary=summary,
                     )
-                raise TypeError(f"Failed to write output variable. {summary}")
+                    logger.error(summary=error_summary, details=summary)
+                raise TypeError(f"{error_summary}\n{summary}")
             print(value_formatted, file=fh)
             if logger:
                 logger.entry(
-                    status="success",
+                    status=_LogStatus.PASS,
                     title=title,
                     summary=(
                         f"Output variable '{name_formatted}' ({type(value).__name__}) "
-                        f"was successfully written to {'environment' if env else 'step'} outputs."
+                        f"was successfully written to {'environment' if to_env else 'step'} outputs."
                     ),
+                    details=[value_formatted] if name not in hide_args else [],
                 )
     if logger:
         logger.section_end()
     return
 
 
-def write_github_summary(content: str, logger: _Logger | None = None) -> None:
+def write_github_summary(
+    content: str,
+    logger: _Logger | None = None,
+    log_title: str = "Write Job Summary",
+) -> None:
     with open(_os.environ["GITHUB_STEP_SUMMARY"], "a") as fh:
         print(content, file=fh)
     if logger:
         logger.entry(
-            status="success",
-            title="Write Job Summary",
+            status=_LogStatus.PASS,
+            title=log_title,
             summary=(
                 f"Job summary ({len(content)} chars) was successfully written "
                 f"to 'GITHUB_STEP_SUMMARY' environment variable."
