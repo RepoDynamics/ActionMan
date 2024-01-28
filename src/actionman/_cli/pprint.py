@@ -41,7 +41,7 @@ def h6():
 
 def entry_github() -> None:
     kwargs = get_args_entry_gh()
-    pprint.entry_github(**kwargs)
+    pprint.github_group(**kwargs)
     return
 
 
