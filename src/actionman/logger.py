@@ -137,6 +137,7 @@ class Logger:
         self._error_title = _pprint.h(
             title="ERROR",
             width=11,
+            align="center",
             margin_top=0,
             margin_bottom=0,
             text_styles="bold",
@@ -326,6 +327,8 @@ class Logger:
             title=title,
             code=code,
         )
+        _sys.stdout.flush()  # Flush stdout buffer before printing the exception
+        _sys.stderr.flush()  # Flush stderr buffer before printing the exception
         self._submit(console=output_console, file=output_html)
         if sys_exit is None:
             sys_exit = self._default_exit_code is not None
@@ -450,45 +453,47 @@ class Logger:
         return fully_qualified_name
 
 
-def logger(
+def create(
     realtime_output: bool = True,
     github_console: bool = True,
+    initial_section_number: int = 1,
+    exit_code_critical: int | None = 1,
+    console_print_debug: bool = True,
     output_html_filepath: str | _Path | None = "log.html",
-    initial_section_level: _Literal[1, 2, 3, 4, 5] = 1,
+    root_heading: str = "Log",
+    html_title: str = "Log",
+    html_style: str = "",
     h1_kwargs: dict | None = None,
     h2_kwargs: dict | None = None,
     h3_kwargs: dict | None = None,
     h4_kwargs: dict | None = None,
     h5_kwargs: dict | None = None,
     h6_kwargs: dict | None = None,
-    symbol_bulletpoint: str = "🔘",
-    symbol_success: str = "✅",
-    symbol_skip: str = "❎",
-    symbol_error: str = "⛔",
-    symbol_warning: str = "🚨",
-    symbol_attention: str = "❗",
-    entry_seperator_top: str = "="*35,
-    entry_seperator_bottom: str = "="*35,
-    entry_seperator_title: str = "-"*30,
+    debug_symbol: str = "🔘",
+    debug_title_text_styles: str | int | list[str | int] | None = "bold",
+    debug_title_text_color: str | int | tuple[int, int, int] | None = None,
+    debug_title_background_color: str | int | tuple[int, int, int] | None = None,
+    info_symbol: str = "ℹ️",
+    info_title_text_styles: str | int | list[str | int] | None = "bold",
+    info_title_text_color: str | int | tuple[int, int, int] | None = None,
+    info_title_background_color: str | int | tuple[int, int, int] | None = None,
+    notice_symbol: str = "❗",
+    notice_title_text_styles: str | int | list[str | int] | None = "bold",
+    notice_title_text_color: str | int | tuple[int, int, int] | None = None,
+    notice_title_background_color: str | int | tuple[int, int, int] | None = None,
+    warning_symbol: str = "🚨",
+    warning_title_text_styles: str | int | list[str | int] | None = "bold",
+    warning_title_text_color: str | int | tuple[int, int, int] | None = None,
+    warning_title_background_color: str | int | tuple[int, int, int] | None = None,
+    error_symbol: str = "🚫",
+    error_title_text_styles: str | int | list[str | int] | None = "bold",
+    error_title_text_color: str | int | tuple[int, int, int] | None = None,
+    error_title_background_color: str | int | tuple[int, int, int] | None = None,
+    critical_symbol: str = "⛔",
+    critical_title_text_styles: str | int | list[str | int] | None = "bold",
+    critical_title_text_color: str | int | tuple[int, int, int] | None = None,
+    critical_title_background_color: str | int | tuple[int, int, int] | None = None,
+    pass_symbol: str = "✅",
+    caller_symbol: str = "🔔",
 ) -> Logger:
-    return Logger(
-        realtime_output=realtime_output,
-        github_console=github_console,
-        output_html_filepath=output_html_filepath,
-        initial_section_level=initial_section_level,
-        h1_kwargs=h1_kwargs,
-        h2_kwargs=h2_kwargs,
-        h3_kwargs=h3_kwargs,
-        h4_kwargs=h4_kwargs,
-        h5_kwargs=h5_kwargs,
-        h6_kwargs=h6_kwargs,
-        symbol_bulletpoint=symbol_bulletpoint,
-        pass_symbol=symbol_success,
-        symbol_skip=symbol_skip,
-        critical_symbol=symbol_error,
-        warning_symbol=symbol_warning,
-        symbol_attention=symbol_attention,
-        entry_seperator_top=entry_seperator_top,
-        entry_seperator_bottom=entry_seperator_bottom,
-        entry_seperator_title=entry_seperator_title,
-    )
+    return Logger(**locals())
