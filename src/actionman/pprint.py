@@ -123,12 +123,13 @@ def entry_console(
 
 def h1(
     title: str,
-    width: int = 110,
-    margin_top: int = 2,
-    margin_bottom: int = 1,
+    width: int = 0,
+    align: _Literal["left", "right", "center"] = "left",
+    margin_top: int = 1,
+    margin_bottom: int = 0,
     text_styles: str | int | list[str | int] | None = "bold",
-    text_color: str | int | tuple[int, int, int] | None = (255, 255, 255),
-    background_color: str | int | tuple[int, int, int] | None = (150, 0, 170),
+    text_color: str | int | tuple[int, int, int] | None = (150, 0, 170),
+    background_color: str | int | tuple[int, int, int] | None = None,
     pprint: bool = True,
 ) -> str:
     return h(**locals())
@@ -136,12 +137,13 @@ def h1(
 
 def h2(
     title: str,
-    width: int = 95,
+    width: int = 0,
+    align: _Literal["left", "right", "center"] = "left",
     margin_top: int = 1,
-    margin_bottom: int = 1,
+    margin_bottom: int = 0,
     text_styles: str | int | list[str | int] | None = "bold",
-    text_color: str | int | tuple[int, int, int] | None = (255, 255, 255),
-    background_color: str | int | tuple[int, int, int] | None = (25, 100, 175),
+    text_color: str | int | tuple[int, int, int] | None = (25, 100, 175),
+    background_color: str | int | tuple[int, int, int] | None = None,
     pprint: bool = True,
 ) -> str:
     return h(**locals())
@@ -149,12 +151,13 @@ def h2(
 
 def h3(
     title: str,
-    width: int = 80,
+    width: int = 0,
+    align: _Literal["left", "right", "center"] = "left",
     margin_top: int = 1,
-    margin_bottom: int = 1,
+    margin_bottom: int = 0,
     text_styles: str | int | list[str | int] | None = "bold",
-    text_color: str | int | tuple[int, int, int] | None = (255, 255, 255),
-    background_color: str | int | tuple[int, int, int] | None = (100, 160, 0),
+    text_color: str | int | tuple[int, int, int] | None = (100, 160, 0),
+    background_color: str | int | tuple[int, int, int] | None = None,
     pprint: bool = True,
 ) -> str:
     return h(**locals())
@@ -162,12 +165,13 @@ def h3(
 
 def h4(
     title: str,
-    width: int = 65,
+    width: int = 0,
+    align: _Literal["left", "right", "center"] = "left",
     margin_top: int = 1,
     margin_bottom: int = 0,
     text_styles: str | int | list[str | int] | None = "bold",
-    text_color: str | int | tuple[int, int, int] | None = (255, 255, 255),
-    background_color: str | int | tuple[int, int, int] | None = (200, 150, 0),
+    text_color: str | int | tuple[int, int, int] | None = (200, 150, 0),
+    background_color: str | int | tuple[int, int, int] | None = None,
     pprint: bool = True,
 ) -> str:
     return h(**locals())
@@ -175,12 +179,13 @@ def h4(
 
 def h5(
     title: str,
-    width: int = 50,
+    width: int = 0,
+    align: _Literal["left", "right", "center"] = "left",
     margin_top: int = 1,
     margin_bottom: int = 0,
     text_styles: str | int | list[str | int] | None = "bold",
-    text_color: str | int | tuple[int, int, int] | None = (255, 255, 255),
-    background_color: str | int | tuple[int, int, int] | None = (240, 100, 0),
+    text_color: str | int | tuple[int, int, int] | None = (240, 100, 0),
+    background_color: str | int | tuple[int, int, int] | None = None,
     pprint: bool = True,
 ) -> str:
     return h(**locals())
@@ -188,12 +193,13 @@ def h5(
 
 def h6(
     title: str,
-    width: int = 35,
+    width: int = 0,
+    align: _Literal["left", "right", "center"] = "left",
     margin_top: int = 1,
     margin_bottom: int = 0,
     text_styles: str | int | list[str | int] | None = "bold",
-    text_color: str | int | tuple[int, int, int] | None = (255, 255, 255),
-    background_color: str | int | tuple[int, int, int] | None = (220, 0, 35),
+    text_color: str | int | tuple[int, int, int] | None = (220, 0, 35),
+    background_color: str | int | tuple[int, int, int] | None = None,
     pprint: bool = True,
 ) -> str:
     return h(**locals())
@@ -202,6 +208,7 @@ def h6(
 def h(
     title: str,
     width: int,
+    align: _Literal["left", "right", "center"],
     margin_top: int,
     margin_bottom: int,
     text_styles: str | int | list[str | int] | None = None,
@@ -212,8 +219,13 @@ def h(
     control_sequence = _sgr.style(
         text_styles=text_styles, text_color=text_color, background_color=background_color
     )
-    centered_title = title.center(width)
-    heading_box = _sgr.format(text=centered_title, control_sequence=control_sequence)
+    if align == "left":
+        aligned_title = title.ljust(width)
+    elif align == "right":
+        aligned_title = title.rjust(width)
+    else:
+        aligned_title = title.center(width)
+    heading_box = _sgr.format(text=aligned_title, control_sequence=control_sequence)
     margin_top = "\n" * margin_top
     margin_bottom = "\n" * margin_bottom
     output = f"{margin_top}{heading_box}{margin_bottom}"
