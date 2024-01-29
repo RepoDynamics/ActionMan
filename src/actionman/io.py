@@ -4,56 +4,60 @@ import json as _json
 import inspect as _inspect
 import base64 as _base64
 
-from actionman.log import Logger as _Logger, LogStatus as _LogStatus
+from actionman.logger import Logger as _Logger, LogLevel as _LogLevel
 
 
 def read_environment_variable(
     name: str,
     typ: _Type[str | bool | int | float | list | dict] = str,
-    missing_ok: bool = False,
+    required: bool = True,
+    mask_value: bool = False,
     logger: _Logger | None = None,
-    log_value: bool = True,
 ) -> str | bool | int | float | list | dict | None:
     """
     Parse inputs from environment variables.
     """
-    def log(status: _LogStatus, summary: str):
+    def log(
+        level: _LogLevel,
+        message: str,
+        title: str = "",
+        code: str = "",
+        exception_type: _Type[Exception] = ValueError,
+        exception: Exception | None = None,
+    ):
         if logger:
-            logger.entry(
-                status=status,
-                title=f"Read environment variable '{name}'",
-                summary=summary,
-                details=[
-                    f"Name: {name}",
-                    f"Type: {typ.__name__}",
-                    f"Required: {'No' if missing_ok else 'Yes'}",
-                    f"Value: {value if log_value else '**REDACTED**'}"
-                ],
-            )
+            logger.log(level=level, message=message, title=title, code=code)
+            logger.section_end()
+        if level is _LogLevel.CRITICAL:
+            if exception:
+                raise exception_type(message) from exception
+            else:
+                raise exception_type(message)
         return
 
     def raise_casting_error(expected_typ: str, exception: Exception | None = None):
-        log(status=_LogStatus.FAIL, summary=f"Value could not be casted to {expected_typ}.")
-        error_summary = f"Environment variable {name} could not be casted to {expected_typ}."
-        if logger:
-            logger.error(summary=error_summary)
-        final_exception = TypeError(error_summary)
-        if exception:
-            raise final_exception from exception
-        else:
-            raise final_exception
+        log(
+            level=_LogLevel.CRITICAL,
+            message=f"Environment variable {name} could not be cast to {expected_typ}.",
+            title="Type Error",
+            code=f"Value: {'**REDACTED**' if mask_value else value}",
+            exception_type=TypeError,
+            exception=exception,
+        )
+        return
 
+    if logger:
+        logger.section(title=f"Read Environment Variable '{name}'", group=True)
+        logger.debug(f"Type: {typ.__name__}, Required: {required}, Mask Value: {mask_value}")
     value = _os.environ.get(name)
     if value is None:
-        if missing_ok:
-            log(
-                status=_LogStatus.SKIP,
-                summary=f"Environment variable '{name}' is not set, but it is not required."
-            )
-            return
-        else:
-            log(status=_LogStatus.FAIL, summary=f"Environment variable '{name}' is not set.")
-            raise ValueError(f"Environment variable '{name}' is not set.")
+        if required:
+            log(level=_LogLevel.CRITICAL, message=f"Required environment variable '{name}' is not set.")
+        log(
+            level=_LogLevel.INFO,
+            message=f"Optional environment variable '{name}' is not set."
+        )
+        return
     if typ is str:
         if isinstance(value, str):
             value_casted = value
@@ -111,7 +115,10 @@ def read_environment_variable(
             raise_casting_error(expected_typ="dict")
     else:
         raise TypeError(f"The specified type '{typ}' for environment variable '{name}' is not supported.")
-    log(status=_LogStatus.PASS, summary=f"Environment variable '{name}' was read successfully.")
+    if logger:
+        logger.info(message=f"Successfully read and cast environment variable '{name}' to '{typ}'.")
+        logger.debug(message="Value:", code='**REDACTED**' if mask_value else value)
+        logger.section_end()
     return value_casted
 
 
@@ -119,21 +126,21 @@ def read_environment_variables(
     *variables_data: tuple[str, _Type[str | bool | int | float | list | dict], bool, bool],
     name_prefix: str = "",
     logger: _Logger | None = None,
-    log_section_name: str = "Inputs",
+    log_section_name: str = "Read Environment Variables",
 ) -> dict[str, str | bool | int | float | list | dict | None]:
     """
     Parse inputs from environment variables.
     """
     if logger:
-        logger.section(log_section_name)
+        logger.section(log_section_name, group=True)
     variables = {}
-    for name, typ, missing_ok, log_value in variables_data:
+    for name, typ, required, mask_value in variables_data:
         variables[name] = read_environment_variable(
             name=f"{name_prefix}{name}",
             typ=typ,
-            missing_ok=missing_ok,
+            required=required,
             logger=logger,
-            log_value=log_value,
+            mask_value=mask_value,
         )
     if logger:
         logger.section_end()
@@ -143,31 +150,38 @@ def read_environment_variables(
 def read_function_args_from_environment_variables(
     function: _Callable,
     name_prefix: str = "",
-    hide_args: tuple[str, ...] | list[str] = tuple(),
+    mask_args: tuple[str, ...] | list[str] = tuple(),
     ignore_params: tuple[str, ...] | list[str] = tuple(),
     logger: _Logger | None = None,
-    log_section_name: str = "Inputs",
+    log_section_name: str = "Read Function Inputs From Environment Variables",
 ) -> dict[str, str | bool | int | float | list | dict | None]:
     """
     Parse inputs from environment variables.
     """
     if logger:
-        logger.section(log_section_name.format(function=function.__qualname__))
+        logger.section(log_section_name.format(function=function.__qualname__), group=True)
+        logger.debug(message="Function:", code=function.__qualname__)
+        logger.debug(message="Name Prefix:", code=name_prefix)
+        logger.debug(message="Masked Arguments:", code=str(mask_args))
+        logger.debug(message="Ignored Parameters:", code=str(ignore_params))
     default_args = {
         k: v.default for k, v in _inspect.signature(function).parameters.items()
         if v.default is not _inspect.Parameter.empty
     }
     params = _get_type_hints(function)
     params.pop("return", None)
+    if logger:
+        logger.debug(message="Default Arguments:", code=str(default_args))
+        logger.debug(message="Parameters:", code=str(params))
     args = {}
     for name, typ in params.items():
         if name not in ignore_params:
             arg = read_environment_variable(
                 name=f"{name_prefix}{name}".upper(),
                 typ=typ,
-                missing_ok=name in default_args,
+                required=name in default_args,
+                mask_value=name in mask_args,
                 logger=logger,
-                log_value=name not in hide_args,
             )
             args[name] = arg if arg is not None else default_args[name]
     if logger:
@@ -178,7 +192,7 @@ def read_function_args_from_environment_variables(
 def write_github_outputs(
     kwargs: dict,
     to_env: bool = False,
-    hide_args: tuple[str, ...] | list[str] = tuple(),
+    mask_args: tuple[str, ...] | list[str] = tuple(),
     logger: _Logger | None = None,
     log_title: str = "Write Step Outputs",
     log_title_env: str = "Write Environment Variables",
@@ -197,33 +211,34 @@ def write_github_outputs(
             return
         return f"{var_name}={var_value}"
     if logger:
-        logger.section(log_title_env if to_env else log_title)
+        logger.section(log_title_env if to_env else log_title, group=True)
+        logger.debug(message="Variables:", code=str(kwargs))
+        logger.debug(message="Masked Arguments:", code=str(mask_args))
+    output_name = 'environment' if to_env else 'step output'
     with open(_os.environ["GITHUB_ENV" if to_env else "GITHUB_OUTPUT"], "a") as fh:
         for idx, (name, value) in enumerate(kwargs.items()):
             name_formatted = name.replace("_", "-") if not to_env else name.upper()
-            title = f"Write '{name_formatted}' ({type(value).__name__})"
             value_formatted = format_output(name_formatted, value)
+            value_type_name = type(value).__name__
             if not value_formatted:
-                summary = f"Invalid type {type(value)} for variable '{name_formatted}': {value}."
-                error_summary = f"Failed to write output variable '{name}'."
+                err_msg = f"The corresponding input variable '{name}; has an invalid type '{value_type_name}'."
+                err_title = f"Failed to write {output_name} variable '{name_formatted}'."
                 if logger:
-                    logger.entry(
-                        status=_LogStatus.FAIL,
-                        title=title,
-                        summary=summary,
+                    logger.critical(
+                        title=err_title,
+                        message=err_msg,
+                        code=f"Value: {'**REDACTED**' if name in mask_args else value}",
                     )
-                    logger.error(summary=error_summary, details=summary)
-                raise TypeError(f"{error_summary}\n{summary}")
+                    logger.section_end()
+                raise TypeError(f"{err_title} {err_msg}")
             print(value_formatted, file=fh)
             if logger:
-                logger.entry(
-                    status=_LogStatus.PASS,
-                    title=title,
-                    summary=(
-                        f"Output variable '{name_formatted}' ({type(value).__name__}) "
-                        f"was successfully written to {'environment' if to_env else 'step'} outputs."
+                logger.info(
+                    message=(
+                        f"Output '{name}' (type: '{value_type_name}') "
+                        f"successfully written to {output_name} variable '{name_formatted}'."
                     ),
-                    details=[value_formatted] if name not in hide_args else [],
+                    code=f"Value: {'**REDACTED**' if name in mask_args else value}",
                 )
     if logger:
         logger.section_end()
@@ -238,12 +253,12 @@ def write_github_summary(
     with open(_os.environ["GITHUB_STEP_SUMMARY"], "a") as fh:
         print(content, file=fh)
     if logger:
-        logger.entry(
-            status=_LogStatus.PASS,
+        logger.debug(
             title=log_title,
-            summary=(
-                f"Job summary ({len(content)} chars) was successfully written "
+            message=(
+                f"Successfully wrote job summary ({len(content)} chars) "
                 f"to 'GITHUB_STEP_SUMMARY' environment variable."
             ),
+            code=content,
         )
     return
