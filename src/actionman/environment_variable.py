@@ -15,6 +15,10 @@ from actionman.exception import (
 )
 
 
+_ENV_VAR_NAME = "GITHUB_ENV"
+_FILEPATH: _Path | None = _Path(_os.environ[_ENV_VAR_NAME]) if _ENV_VAR_NAME in _os.environ else None
+
+
 def read(
     name: str,
     typ: _Type[str | bool | int | float | list | dict] = str,
@@ -93,6 +97,8 @@ def write(name: str, value: dict | list | tuple | str | bool | int | float | Non
 
     Raises
     ------
+    actionman.exception.ActionManGitHubError
+        If the 'GITHUB_ENV' environment variable is not set.
     actionman.exception.ActionManOutputVariableTypeError
         If the value has an unsupported type.
     actionman.exception.ActionManOutputVariableSerializationError
@@ -102,18 +108,9 @@ def write(name: str, value: dict | list | tuple | str | bool | int | float | Non
     ----------
     - [GitHub Docs: Workflow Commands for GitHub Actions: Setting an environment variable](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-environment-variable)
     """
+    if not _FILEPATH:
+        raise _ActionManGitHubError(missing_env_var=_ENV_VAR_NAME)
     output = _format.output_variable(name=name, value=value)
     with open(_FILEPATH, "a") as f:
         print(output, file=f)
     return output
-
-
-def _get_filepath() -> _Path:
-    env_var_name = "GITHUB_ENV"
-    path = _os.environ.get(env_var_name)
-    if not path:
-        raise _ActionManGitHubError(missing_env_var=env_var_name)
-    return _Path(path)
-
-
-_FILEPATH = _get_filepath()
