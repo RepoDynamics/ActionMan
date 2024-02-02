@@ -4,7 +4,7 @@
 import io as _io
 import sys as _sys
 
-from actionman import io, logger, pprint, shell
+from actionman import exception, environment_variable, step_summary, step_output, pprint
 
 
 if hasattr(_sys.stdout, 'buffer'):
