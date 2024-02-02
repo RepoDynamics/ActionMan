@@ -1,3 +1,6 @@
+"""Work with environment variables in a GitHub Actions workflow."""
+
+
 from typing import Type as _Type
 import os as _os
 from pathlib import Path as _Path
@@ -94,6 +97,10 @@ def write(name: str, value: dict | list | tuple | str | bool | int | float | Non
         If the value has an unsupported type.
     actionman.exception.ActionManOutputVariableSerializationError
         If the value could not be serialized to a JSON string.
+
+    References
+    ----------
+    - [GitHub Docs: Workflow Commands for GitHub Actions: Setting an environment variable](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-environment-variable)
     """
     output = _format.output_variable(name=name, value=value)
     with open(_FILEPATH, "a") as f:
