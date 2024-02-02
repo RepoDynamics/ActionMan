@@ -1,3 +1,6 @@
+"""Exceptions raised by ActionMan."""
+
+
 from typing import Any as _Any, Type as _Type
 
 
