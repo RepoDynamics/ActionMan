@@ -1,4 +1,3 @@
-
 [build-system]
 requires = ["setuptools>=61.0", "versioningit"]
 build-backend = "setuptools.build_meta"
@@ -15,21 +14,7 @@ namespaces = true
 
 
 # ----------------------------------------- Project Metadata -------------------------------------
-#
 [project]
-version = "0.0.0.dev7"
+version = "0.0.0.dev8"
 name = "ActionMan"
-dependencies = [
-    "markitup",
-]
 requires-python = ">=3.10"
-
-[project.scripts]
-am-print-file = "actionman._cli.pprint:file"
-am-print-h1 = "actionman._cli.pprint:h1"
-am-print-h2 = "actionman._cli.pprint:h2"
-am-print-h3 = "actionman._cli.pprint:h3"
-am-print-h4 = "actionman._cli.pprint:h4"
-am-print-h5 = "actionman._cli.pprint:h5"
-am-print-h6 = "actionman._cli.pprint:h6"
-am-print-entry-gh = "actionman._cli.pprint:entry_github"
