@@ -1,10 +1,13 @@
-"""ActionMan"""
+"""ActionMan
+
+Use workflow commands for GitHub Actions from Python.
+"""
 
 
 import io as _io
 import sys as _sys
 
-from actionman import exception, environment_variable, step_summary, step_output, pprint
+from actionman import exception, log, environment_variable, step_output, step_summary
 
 
 if hasattr(_sys.stdout, 'buffer'):
