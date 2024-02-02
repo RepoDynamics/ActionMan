@@ -2,7 +2,6 @@
 
 
 from typing import Literal as _Literal
-from markitup import sgr as _sgr
 
 from actionman.protocol import Stringable as _Stringable
 
@@ -175,121 +174,5 @@ def group_close(print_: bool = True) -> str:
     """
     output = "::endgroup::"
     if print_:
-        print(output, flush=True)
-    return output
-
-
-
-
-
-def h1(
-    title: str,
-    width: int = 0,
-    align: _Literal["left", "right", "center"] = "left",
-    margin_top: int = 1,
-    margin_bottom: int = 0,
-    text_styles: str | int | list[str | int] | None = "bold",
-    text_color: str | int | tuple[int, int, int] | None = (150, 0, 170),
-    background_color: str | int | tuple[int, int, int] | None = None,
-    pprint: bool = True,
-) -> str:
-    return h(**locals())
-
-
-def h2(
-    title: str,
-    width: int = 0,
-    align: _Literal["left", "right", "center"] = "left",
-    margin_top: int = 1,
-    margin_bottom: int = 0,
-    text_styles: str | int | list[str | int] | None = "bold",
-    text_color: str | int | tuple[int, int, int] | None = (25, 100, 175),
-    background_color: str | int | tuple[int, int, int] | None = None,
-    pprint: bool = True,
-) -> str:
-    return h(**locals())
-
-
-def h3(
-    title: str,
-    width: int = 0,
-    align: _Literal["left", "right", "center"] = "left",
-    margin_top: int = 1,
-    margin_bottom: int = 0,
-    text_styles: str | int | list[str | int] | None = "bold",
-    text_color: str | int | tuple[int, int, int] | None = (100, 160, 0),
-    background_color: str | int | tuple[int, int, int] | None = None,
-    pprint: bool = True,
-) -> str:
-    return h(**locals())
-
-
-def h4(
-    title: str,
-    width: int = 0,
-    align: _Literal["left", "right", "center"] = "left",
-    margin_top: int = 1,
-    margin_bottom: int = 0,
-    text_styles: str | int | list[str | int] | None = "bold",
-    text_color: str | int | tuple[int, int, int] | None = (200, 150, 0),
-    background_color: str | int | tuple[int, int, int] | None = None,
-    pprint: bool = True,
-) -> str:
-    return h(**locals())
-
-
-def h5(
-    title: str,
-    width: int = 0,
-    align: _Literal["left", "right", "center"] = "left",
-    margin_top: int = 1,
-    margin_bottom: int = 0,
-    text_styles: str | int | list[str | int] | None = "bold",
-    text_color: str | int | tuple[int, int, int] | None = (240, 100, 0),
-    background_color: str | int | tuple[int, int, int] | None = None,
-    pprint: bool = True,
-) -> str:
-    return h(**locals())
-
-
-def h6(
-    title: str,
-    width: int = 0,
-    align: _Literal["left", "right", "center"] = "left",
-    margin_top: int = 1,
-    margin_bottom: int = 0,
-    text_styles: str | int | list[str | int] | None = "bold",
-    text_color: str | int | tuple[int, int, int] | None = (220, 0, 35),
-    background_color: str | int | tuple[int, int, int] | None = None,
-    pprint: bool = True,
-) -> str:
-    return h(**locals())
-
-
-def h(
-    title: str,
-    width: int,
-    align: _Literal["left", "right", "center"],
-    margin_top: int,
-    margin_bottom: int,
-    text_styles: str | int | list[str | int] | None = None,
-    text_color: str | int | tuple[int, int, int] | None = None,
-    background_color: str | int | tuple[int, int, int] | None = None,
-    pprint: bool = False,
-) -> str:
-    control_sequence = _sgr.style(
-        text_styles=text_styles, text_color=text_color, background_color=background_color
-    )
-    if align == "left":
-        aligned_title = title.ljust(width)
-    elif align == "right":
-        aligned_title = title.rjust(width)
-    else:
-        aligned_title = title.center(width)
-    heading_box = _sgr.format(text=aligned_title, control_sequence=control_sequence)
-    margin_top = "\n" * margin_top
-    margin_bottom = "\n" * margin_bottom
-    output = f"{margin_top}{heading_box}{margin_bottom}"
-    if pprint:
         print(output, flush=True)
     return output
