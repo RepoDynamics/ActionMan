@@ -14,7 +14,7 @@ from actionman.exception import ActionManGitHubError as _ActionManGitHubError
 
 
 def write(name: str, value: dict | list | tuple | str | bool | int | float | None) -> str:
-    """Set a step's output parameter for the current step.
+    """Set an output parameter for the current step.
 
     This is done by writing the output
     to the environment file whose path is specified by the 'GITHUB_OUTPUT' environment variable.
