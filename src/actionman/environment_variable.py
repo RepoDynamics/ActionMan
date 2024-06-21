@@ -57,7 +57,9 @@ def read(
     if typ is str:
         return value
     try:
+        print(value, type(value))
         value_deserialized = _json.loads(value)
+        print(value_deserialized, type(value_deserialized))
     except Exception as e:
         raise _ActionManInputVariableDeserializationError(
             var_name=name,
