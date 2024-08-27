@@ -9,8 +9,7 @@ from actionman.exception import (
 
 
 def output_variable(name: str, value: dict | list | tuple | str | bool | int | float | None) -> str:
-    """
-    Format a variable name and value to a string
+    """Format a variable name and value to a string
     that could be written as an environment variable (to 'GITHUB_ENV')
     or output parameter (to 'GITHUB_OUTPUT') in a job step of a GitHub Actions workflow.
 

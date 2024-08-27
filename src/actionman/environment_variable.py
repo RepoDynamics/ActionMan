@@ -1,6 +1,5 @@
 """Work with environment variables in a GitHub Actions workflow."""
 
-
 from typing import Type as _Type
 import os as _os
 from pathlib import Path as _Path

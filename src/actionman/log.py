@@ -32,7 +32,7 @@ def debug(message: _Stringable, print_: bool = True) -> str:
 
 
 def annotation(
-    typ: _Literal["debug", "notice", "warning", "error"],
+    typ: _Literal["notice", "warning", "error"],
     message: _Stringable,
     title: _Stringable = "",
     filename: _Stringable = "",
