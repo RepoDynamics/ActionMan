@@ -9,7 +9,7 @@ References
 import os as _os
 from pathlib import Path as _Path
 
-from actionman.protocol import Stringable as _Stringable
+from pyprotocol import Stringable as _Stringable
 from actionman.exception import ActionManGitHubError as _ActionManGitHubError
 
 

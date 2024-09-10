@@ -15,6 +15,9 @@ namespaces = true
 
 # ----------------------------------------- Project Metadata -------------------------------------
 [project]
-version = "0.0.0.dev12"
+version = "0.0.0.dev13"
 name = "ActionMan"
 requires-python = ">=3.10"
+dependencies = [
+    "PyProtocol",
+]

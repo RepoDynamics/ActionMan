@@ -3,7 +3,7 @@
 
 from typing import Literal as _Literal
 
-from actionman.protocol import Stringable as _Stringable
+from pyprotocol import Stringable as _Stringable
 
 
 def debug(message: _Stringable, print_: bool = True) -> str:
