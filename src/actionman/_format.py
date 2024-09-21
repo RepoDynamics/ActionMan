@@ -8,23 +8,19 @@ from actionman.exception import (
 )
 
 
-def output_variable(name: str, value: dict | list | tuple | str | bool | int | float | None) -> str:
-    """Format a variable name and value to a string
-    that could be written as an environment variable (to 'GITHUB_ENV')
-    or output parameter (to 'GITHUB_OUTPUT') in a job step of a GitHub Actions workflow.
+def output_variable(key: str, value: dict | list | tuple | str | bool | int | float | None) -> str:
+    """Format a key-value pair for output.
+
+    This converts a variable name and its corresponding value to a string
+    that could be written as an environment variable (to `GITHUB_ENV`)
+    or output parameter (to `GITHUB_OUTPUT`) in a job step of a GitHub Actions workflow.
 
     Parameters
     ----------
-    name : str
-        The name of the variable.
-    value : dict | list | tuple | str | bool | int | float | None
-        The value of the variable.
-
-    Returns
-    -------
-    str
-        The formatted variable name and value
-        as a string ready to be added to 'GITHUB_ENV' or 'GITHUB_OUTPUT'.
+    key
+        Name of the variable.
+    value
+        Value of the variable.
 
     Raises
     ------
@@ -43,19 +39,19 @@ def output_variable(name: str, value: dict | list | tuple | str | bool | int | f
             with open("/dev/urandom", "rb") as f:
                 random_bytes = f.read(15)
             random_delimeter = _base64.b64encode(random_bytes).decode("utf-8")
-            return f"{name}<<{random_delimeter}\n{value}\n{random_delimeter}"
+            return f"{key}<<{random_delimeter}\n{value}\n{random_delimeter}"
     elif isinstance(value, (dict, list, tuple, bool, int, float, _NoneType)):
         try:
             value = _json.dumps(value)
         except Exception as e:
             raise _ActionManOutputVariableSerializationError(
-                var_name=name,
+                var_name=key,
                 var_value=value,
                 exception=e,
             ) from e
     else:
         raise _ActionManOutputVariableTypeError(
-            var_name=name,
+            var_name=key,
             var_value=value,
         )
-    return f"{name}={value}"
+    return f"{key}={value}"

@@ -1,22 +1,15 @@
-"""ActionMan
-
-Use workflow commands for GitHub Actions from Python.
-"""
-
+"""ActionMan: GitHub Actions utilities for Python."""
 
 import io as _io
 import sys as _sys
 
-from actionman import exception, log, env_var, step_output, step_summary
+from actionman import log, env_var, step_output, step_summary
 
 
 def in_gha() -> bool:
-    """Check if the current script is running in a GitHub Actions environment.
+    """Check whether the current program is running in a GitHub Actions environment.
 
-    Returns
-    -------
-    bool
-        Whether the current script is running in a GitHub Actions environment.
+    This is done by checking the presence of the 'GITHUB_ACTIONS' environment variable.
 
     References
     ----------

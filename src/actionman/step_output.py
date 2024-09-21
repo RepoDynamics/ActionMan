@@ -5,7 +5,6 @@ References
 - [GitHub Docs: Workflow Commands for GitHub Actions: Setting an output parameter](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-output-parameter)
 """
 
-
 import os as _os
 from pathlib import Path as _Path
 
@@ -48,7 +47,7 @@ def write(name: str, value: dict | list | tuple | str | bool | int | float | Non
     """
     if not _FILEPATH:
         raise _ActionManGitHubError(missing_env_var=_ENV_VAR_NAME)
-    output = _format.output_variable(name=name, value=value)
+    output = _format.output_variable(key=name, value=value)
     with open(_FILEPATH, "a") as f:
         print(output, file=f)
     return output

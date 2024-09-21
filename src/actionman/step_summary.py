@@ -5,12 +5,15 @@ References
 - [GitHub Docs: Workflow Commands for GitHub Actions: Adding a job summary](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#adding-a-job-summary)
 """
 
-
+from __future__ import annotations as _annotations
+from typing import TYPE_CHECKING as _TYPE_CHECKING
 import os as _os
 from pathlib import Path as _Path
 
-from pyprotocol import Stringable as _Stringable
 from actionman.exception import ActionManGitHubError as _ActionManGitHubError
+
+if _TYPE_CHECKING:
+    from protocolman import Stringable
 
 
 _ENV_VAR_NAME = "GITHUB_STEP_SUMMARY"
@@ -43,7 +46,7 @@ def read() -> str | None:
     return _FILEPATH.read_text() if _FILEPATH.is_file() else None
 
 
-def append(content: _Stringable) -> None:
+def append(content: Stringable) -> None:
     """Append the given content to the step summary file.
 
     Raises
@@ -58,7 +61,7 @@ def append(content: _Stringable) -> None:
     return
 
 
-def write(content: _Stringable) -> None:
+def write(content: Stringable) -> None:
     """Overwrite the step summary file with the given content.
 
     Raises

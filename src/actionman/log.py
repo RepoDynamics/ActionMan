@@ -12,7 +12,7 @@ if _TYPE_CHECKING:
     from typing import Literal
     from rich.console import RenderableType
     from rich.text import TextType
-    from pyprotocol import Stringable
+    from protocolman import Stringable
 
 
 DEFAULT_CONSOLE = Console(force_terminal=True, emoji_variant="emoji")
