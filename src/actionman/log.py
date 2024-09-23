@@ -61,7 +61,7 @@ def annotation(
     column_end: int = 0,
     console: Console | None = None,
     out: bool = True,
-) -> str:
+) -> _Text:
     """Create a notice, warning, or error annotation.
 
     Parameters
@@ -101,8 +101,7 @@ def annotation(
     - [GitHub Docs: Workflow Commands for GitHub Actions: Setting an error message](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-error-message)
     """
     args = locals()
-    sig = f"::{typ} "
-    args_added = False
+    sig = []
     for arg_name, github_arg_name in (
         ("title", "title"),
         ("filename", "file"),
@@ -112,10 +111,10 @@ def annotation(
         ("column_end", "endColumn"),
     ):
         if args[arg_name]:
-            sig += f"{github_arg_name}={args[arg_name]},"
-            args_added = True
-    sig = sig.removesuffix("," if args_added else " ")
-    output = _Text(sig)
+            sig.append(f"{github_arg_name}={args[arg_name]}")
+    sig_str = ",".join(sig)
+    sig_section = f" {sig_str}" if sig_str else ""
+    output = _Text(f"::{typ}{sig_section}::")
     output.append(message)
     if out:
         console = console or DEFAULT_CONSOLE
