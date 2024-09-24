@@ -23,7 +23,8 @@ class Logger:
                 color_system="truecolor",
                 force_terminal=True,
                 emoji_variant="emoji",
-                width=91,
+                width=90,
+                safe_box=False,
             )
         elif isinstance(console, dict):
             self.console = Console(**console)
