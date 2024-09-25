@@ -144,7 +144,7 @@ class Logger:
         output = _Text(f"::{typ}{sig_section}::")
         output.append(message)
         if out:
-            self.console.print(output)
+            self.console.print(output, crop=False, soft_wrap=True)
         return output
 
 
