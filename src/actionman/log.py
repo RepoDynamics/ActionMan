@@ -114,7 +114,7 @@ class Logger:
         - [GitHub Docs: Workflow Commands for GitHub Actions: Setting an error message](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-error-message)
         """
         args = locals()
-        sig = []
+        args_str = []
         for arg_name, github_arg_name in (
             ("title", "title"),
             ("filename", "file"),
@@ -124,9 +124,9 @@ class Logger:
             ("column_end", "endColumn"),
         ):
             if args[arg_name]:
-                sig.append(f"{github_arg_name}={args[arg_name]}")
-        sig_str = ",".join(sig)
-        sig_section = f" {sig_str}" if sig_str else ""
+                args_str.append(f"{github_arg_name}={args[arg_name]}")
+        args_str_full = ",".join(args_str)
+        sig_section = f" {args_str_full}" if args_str_full else ""
         output = _Text(f"::{typ}{sig_section}::")
         output.append(message)
         if out:
