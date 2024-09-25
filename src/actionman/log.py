@@ -141,14 +141,14 @@ class Logger:
                 args_str.append(f"{github_arg_name}={args[arg_name]}")
         args_str_full = ",".join(args_str)
         sig_section = f" {args_str_full}" if args_str_full else ""
-        output = _Text(f"::{typ}{sig_section}::")
+        output = _Text(f"::{typ}{sig_section}::", no_wrap=True)
         output.append(message)
         if out:
             self.console.print(output, crop=False, soft_wrap=True)
         return output
 
 
-    def group(self, *contents: RenderableType, title: TextType | None = None, out: bool = True) -> _Group:
+    def group(self, *contents: RenderableType, title: TextType | None = None, out: bool = True) -> tuple[_Text, _Group, str]:
         """Create an expandable log group.
 
         Parameters
@@ -162,19 +162,18 @@ class Logger:
 
         Returns
         -------
-        str
-            The log group.
+        The log group.
 
         References
         ----------
         - [GitHub Docs: Workflow Commands for GitHub Actions: Grouping log output](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#grouping-log-output)
         """
-        start = self.group_open(title, out=False)
-        end = self.group_close(out=False)
-        output = _Group(start, *contents, end)
+        start = self.group_open(title, out=out)
+        group_output = _Group(*contents, fit=False)
         if out:
-            self.console.print(output)
-        return output
+            self.console.print(group_output)
+        end = self.group_close(out=out)
+        return start, group_output, end
 
 
     def group_open(self, title: TextType | None = None, out: bool = True) -> _Text:
@@ -189,18 +188,17 @@ class Logger:
 
         Returns
         -------
-        str
-            The log group's opening tag.
+        The log group's opening tag.
 
         References
         ----------
         - [GitHub Docs: Workflow Commands for GitHub Actions: Grouping log output](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#grouping-log-output)
         """
-        output = _Text("::group::")
+        output = _Text("::group::", no_wrap=True)
         if title:
             output.append(title)
         if out:
-            self.console.print(output)
+            self.console.print(output, crop=False, soft_wrap=True)
         return output
 
 
