@@ -54,10 +54,10 @@ class Logger:
         """
         final_lines: list[_segment.Segments] = []
         for content in contents:
-            for line in self.console.render_lines(content):
+            for line in self.console.render_lines(content, new_lines=True):
                 line.insert(0, _segment.Segment("::debug::"))
                 final_lines.append(_segment.Segments(line))
-        output = _Group(*final_lines)
+        output = _Group(*final_lines, fit=False)
         if out:
             self.console.print(output)
         return output
