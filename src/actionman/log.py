@@ -17,7 +17,7 @@ if _TYPE_CHECKING:
 
 class Logger:
 
-    def __init__(self, console: Console | dict | None):
+    def __init__(self, console: Console | dict | None = None):
         if not console:
             self.console = Console(
                 color_system="truecolor",
