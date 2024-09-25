@@ -4,7 +4,7 @@ from __future__ import annotations as _annotations
 
 from typing import TYPE_CHECKING as _TYPE_CHECKING
 
-from rich.console import Console, Group as _Group
+from rich.console import Console, Group as _Group, ConsoleOptions as _ConsoleOptions, ConsoleDimensions as _ConsoleDimensions
 from rich import segment as _segment
 from rich.text import Text as _Text
 
@@ -52,10 +52,24 @@ class Logger:
         ----------
         - [GitHub Docs: Workflow Commands for GitHub Actions: Setting a debug message](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-a-debug-message)
         """
+        line_prefix = "::debug::"
+        len_line_prefix = len(line_prefix)
         final_lines: list[_segment.Segments] = []
         for content in contents:
-            for line in self.console.render_lines(content, new_lines=True):
-                line.insert(0, _segment.Segment("::debug::"))
+            for line in self.console.render_lines(
+                content,
+                options=_ConsoleOptions(
+                    size=_ConsoleDimensions(self.console.width - len_line_prefix, self.console.height),
+                    legacy_windows=self.console.legacy_windows,
+                    min_width=self.console.width - len_line_prefix,
+                    max_width=self.console.width - len_line_prefix,
+                    is_terminal=True,
+                    encoding=self.console.encoding,
+                    max_height=self.console.size.height,
+                ),
+                new_lines=True
+            ):
+                line.insert(0, _segment.Segment(line_prefix))
                 final_lines.append(_segment.Segments(line))
         output = _Group(*final_lines, fit=False)
         if out:
