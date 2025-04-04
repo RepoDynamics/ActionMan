@@ -21,6 +21,8 @@ _FILEPATH: _Path | None = _Path(_os.environ[_ENV_VAR_NAME]) if _ENV_VAR_NAME in 
 def read(
     name: str,
     typ: _Type[str | bool | int | float | list | dict] = str,
+    remove: bool = False,
+    default: str | bool | int | float | list | dict | None = None,
 ) -> str | bool | int | float | list | dict | None:
     """Read an environment variable and cast it to the given type.
 
@@ -32,7 +34,11 @@ def read(
         The type to cast the environment variable to.
         If the type is not str, the value of the environment variable
         is expected to be a JSON string that can be deserialized to the given type.
-
+    remove : bool, default: False
+        If True, the environment variable is removed from the environment after reading it.
+    default : str | bool | int | float | list | dict | None, default: None
+        The default value to return if the environment variable is not set.
+        
     Returns
     -------
     str | bool | int | float | list | dict | None
@@ -50,10 +56,8 @@ def read(
     """
     if typ not in (str, bool, int, float, list, dict):
         raise _ActionManInputVariableTypeError(var_name=name, var_type=typ)
-    value = _os.environ.get(name)
-    if value is None:
-        return
-    if typ is str:
+    value = _os.environ.pop(name, default) if remove else _os.environ.get(name, default)
+    if typ is str or value is None:
         return value
     try:
         value_deserialized = _json.loads(value)
